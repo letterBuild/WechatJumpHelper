@@ -107,6 +107,10 @@ public class Helper {
                 }
 
                 // 读取图片像素
+                BufferedImage imageload = ImageIO.read(cacheFile);
+                BufferedImage newImage = Helper.rotate(imageload, -90);
+                ImageIO.write(newImage,"png",cacheFile);
+
                 BufferedImage image = ImageIO.read(cacheFile);
                 final int screenWidth = image.getWidth();
                 final int screenHeight = image.getHeight();
@@ -402,6 +406,57 @@ public class Helper {
             whitePointCenter = null;
         }
         return whitePointCenter;
+    }
+	
+    /**
+     * 对一个图像进行旋转
+     *
+     * @param image
+     *            图像
+     * @param degree
+     *            旋转角度, 90 为顺时针九十度， -90 为逆时针九十度
+     * @return 旋转后得图像对象
+     */
+    public static BufferedImage rotate(BufferedImage image, int degree) {
+        int iw = image.getWidth();// 原始图象的宽度
+        int ih = image.getHeight();// 原始图象的高度
+        int w = 0;
+        int h = 0;
+        int x = 0;
+        int y = 0;
+        degree = degree % 360;
+        if (degree < 0)
+            degree = 360 + degree;// 将角度转换到0-360度之间
+        double ang = degree * 0.0174532925;// 将角度转为弧度
+
+        /**
+         * 确定旋转后的图象的高度和宽度
+         */
+
+        if (degree == 180 || degree == 0 || degree == 360) {
+            w = iw;
+            h = ih;
+        } else if (degree == 90 || degree == 270) {
+            w = ih;
+            h = iw;
+        } else {
+            int d = iw + ih;
+            w = (int) (d * Math.abs(Math.cos(ang)));
+            h = (int) (d * Math.abs(Math.sin(ang)));
+        }
+
+        x = (w / 2) - (iw / 2);// 确定原点坐标
+        y = (h / 2) - (ih / 2);
+        BufferedImage rotatedImage = new BufferedImage(w, h, image.getType());
+        Graphics2D gs = rotatedImage.createGraphics();
+        gs.fillRect(0, 0, w, h);// 以给定颜色绘制旋转后图片的背景
+        AffineTransform at = new AffineTransform();
+        at.rotate(ang, w / 2, h / 2);// 旋转图象
+        at.translate(x, y);
+        AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        op.filter(image, rotatedImage);
+        image = rotatedImage;
+        return image;
     }
 
 }
