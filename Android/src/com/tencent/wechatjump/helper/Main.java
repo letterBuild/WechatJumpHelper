@@ -100,6 +100,10 @@ public class Main {
         int screenWidth;
         int screenHeight;
         try {
+            BufferedImage imageload = ImageIO.read(imageFile);
+            BufferedImage newImage = Helper.rotate(imageload, -90);
+            ImageIO.write(newImage,"png",imageFile);
+
             BufferedImage image = ImageIO.read(imageFile);
             screenWidth = image.getWidth();
             screenHeight = image.getHeight();
